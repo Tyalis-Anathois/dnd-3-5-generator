@@ -1,12 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package me.tyalis.dnd.generator;
 
 /**
  *
- * @author User
+ * @author Tyalis
  */
 public class Dnd35Generator {
 
