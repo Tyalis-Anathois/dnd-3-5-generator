@@ -17,6 +17,9 @@ public enum CityClass {
 	;
 	
 	
+	private static final CityClass[] vals = values();
+	
+	
 	public final int popMin;
 	public final int popMax;
 	public final int financeLimit;
@@ -25,12 +28,6 @@ public enum CityClass {
 	public final int govMultiplier;
 	public final int communityModifier;
 	public final int communityMultiplier;
-	
-	
-	public static CityClass random100() {
-		// TODO implement random 100 selection of city class (1 to 100)
-		throw new UnsupportedOperationException("Not implemented yet");
-	}
 	
 	
 	private CityClass (int popMin, int popMax, int financeLimit, String name,
@@ -43,6 +40,34 @@ public enum CityClass {
 		this.govMultiplier = govMultiplier;
 		this.communityModifier = communityModifier;
 		this.communityMultiplier = communityMultiplier;
+	}
+	
+	
+	public static CityClass smallest() {
+		return vals[0];
+	}
+	
+	public static CityClass biggest() {
+		return vals[vals.length-1];
+	}
+	
+	
+	public int comparePopToCityClass(int pop) {
+		if (pop < this.popMin) {
+			return -1;
+		} else if (pop > this.popMax) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+	public CityClass next() {
+		return vals[(this.ordinal() +1) % vals.length];
+	}
+	
+	public CityClass previous() {
+		return vals[(vals.length + this.ordinal() -1) %vals.length];
 	}
 	
 }
