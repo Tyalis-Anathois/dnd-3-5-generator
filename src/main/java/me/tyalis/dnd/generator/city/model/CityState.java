@@ -3,7 +3,6 @@ package me.tyalis.dnd.generator.city.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import me.tyalis.dnd.Alignment;
 import me.tyalis.dnd.Classes;
 import me.tyalis.dnd.Race;
 
@@ -27,15 +26,14 @@ public class CityState implements Serializable {
 	private int nbSoldiers;
 	private int nbMilitia;
 	
-	private ArrayList<GovernmentType> govTypes;
-	private Alignment govAlign;
+	private ArrayList<Government> government;
 	
 	private HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel;
 	
 	
 	CityState(CityClass cityClass, int nbPop, int financeLimit, int liquidity, int nbChildren,
-			HashMap<Race, Integer> popPerRace, int nbSoldiers, int nbMilitia, ArrayList<GovernmentType> govTypes,
-			Alignment govAlign, HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel) {
+			HashMap<Race, Integer> popPerRace, int nbSoldiers, int nbMilitia, ArrayList<Government> government,
+			HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel) {
 		
 		this.cityClass = cityClass;
 		this.nbPop = nbPop;
@@ -45,8 +43,7 @@ public class CityState implements Serializable {
 		this.popPerRace = popPerRace;
 		this.nbSoldiers = nbSoldiers;
 		this.nbMilitia = nbMilitia;
-		this.govTypes = govTypes;
-		this.govAlign = govAlign;
+		this.government = government;
 		this.nbClassLevel = nbClassLevel;
 	}
 	
@@ -83,12 +80,8 @@ public class CityState implements Serializable {
 		return nbMilitia;
 	}
 	
-	public ArrayList<GovernmentType> getGovTypes() {
-		return (ArrayList<GovernmentType>) govTypes.clone();
-	}
-	
-	public Alignment getGovAlign() {
-		return govAlign;
+	public ArrayList<Government> getGovernment() {
+		return (ArrayList<Government>) government.clone();
 	}
 	
 	public HashMap<Classes, HashMap<Integer, Integer>> getNbClassLevel() {

@@ -1,5 +1,6 @@
 package me.tyalis.dnd.generator.city.model;
 
+import java.util.Random;
 import static me.tyalis.dnd.Dices.D100;
 
 /**
@@ -10,7 +11,11 @@ public class DefaultCityFactory implements CityFactory {
 	
 	@Override
 	public CityModel createCityOfClass(CityClass cityClass) {
-		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+		int nbPop = (cityClass == CityClass.METROPOLE)
+				? this.generateMetropolePop()
+				: this.generateGenericPop(cityClass.popMin, cityClass.popMax);
+		
+		return this.createCity(cityClass, nbPop);
 	}
 	
 	@Override
@@ -21,7 +26,7 @@ public class DefaultCityFactory implements CityFactory {
 			cityClass = cityClass.next();
 		}
 		
-		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+		return this.createCity(cityClass, nbPop);
 	}
 	
 	@Override
@@ -48,6 +53,47 @@ public class DefaultCityFactory implements CityFactory {
 		}
 		
 		return this.createCityOfClass(cityClass);
+	}
+	
+	
+	protected int generateGenericPop(int popMin, int popMax) {	// XXX unit test with edge case Integer.MAX
+		int variance = popMax - popMin +1;
+		return new Random().nextInt(variance) + popMin;
+	}
+	
+	protected int generateMetropolePop() {
+		int max = CityClass.METROPOLE.popMin * 10;
+		boolean growMore = D100.roll() == 100;
+		
+		while(this.maxCanGrow(max) && growMore) {
+			max *= 10;
+			
+			growMore = D100.roll() == 100;
+		}
+		
+		if (growMore) {
+			max = CityClass.METROPOLE.popMax;
+		}
+		
+		return this.generateGenericPop(CityClass.METROPOLE.popMin, max);
+	}
+	
+	protected boolean maxCanGrow(int max) {
+		return max < (CityClass.METROPOLE.popMax / 10);
+	}
+	
+	protected CityModel createCity(CityClass cityClass, int nbPop) {
+		StateBuilder stateBuilder = new StateBuilder(cityClass, nbPop)
+				.inferChildPop()
+				.recommandedLiquidity()
+				.recommandedGuards()
+				.recommandedMilitia()
+				// TODO generate government (type + alignment)
+				// TODO generate classes pop
+				// TODO pick capitain
+				;
+		
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
 }
