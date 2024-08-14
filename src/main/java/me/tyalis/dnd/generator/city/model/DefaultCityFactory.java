@@ -88,7 +88,7 @@ public class DefaultCityFactory implements CityFactory {
 				.recommandedLiquidity()
 				.recommandedGuards()
 				.recommandedMilitia()
-				// TODO generate government (type + alignment)
+				.addRandomGovernments()
 				// TODO generate classes pop
 				// TODO pick capitain
 				;

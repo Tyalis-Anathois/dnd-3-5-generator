@@ -1,7 +1,9 @@
 package me.tyalis.dnd;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Tyalis
  */
-public interface Classes { }
+public interface Classes extends Serializable { }

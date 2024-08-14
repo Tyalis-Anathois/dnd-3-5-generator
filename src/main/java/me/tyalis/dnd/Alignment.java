@@ -1,10 +1,12 @@
 package me.tyalis.dnd;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Tyalis
  */
-public enum Alignment {
+public enum Alignment implements Serializable {
 	LG("LB","Loyal Bon"),		NG("NB","Neutre Bon"),		CG("CB","Chaotique Bon"),
 	LN("LN","Loyal Neutre"),		NN("NN","Neutre Neutre"),	CN("CN","Chaotique Neutre"),
 	LE("LM","Loyal Mauvais"),	NE("NM","Neutre Mauvais"),	CE("CM","Chaotique Mauvais");

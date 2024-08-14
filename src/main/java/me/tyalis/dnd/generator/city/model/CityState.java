@@ -3,7 +3,6 @@ package me.tyalis.dnd.generator.city.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import me.tyalis.dnd.Classes;
 import me.tyalis.dnd.Race;
 
 /**
@@ -28,12 +27,12 @@ public class CityState implements Serializable {
 	
 	private ArrayList<Government> government;
 	
-	private HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel;
+	private HashMap<ClassLevel, Integer> nbClassLevel;
 	
 	
 	CityState(CityClass cityClass, int nbPop, int financeLimit, int liquidity, int nbChildren,
 			HashMap<Race, Integer> popPerRace, int nbSoldiers, int nbMilitia, ArrayList<Government> government,
-			HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel) {
+			HashMap<ClassLevel, Integer> nbClassLevel) {
 		
 		this.cityClass = cityClass;
 		this.nbPop = nbPop;
@@ -84,8 +83,8 @@ public class CityState implements Serializable {
 		return (ArrayList<Government>) government.clone();
 	}
 	
-	public HashMap<Classes, HashMap<Integer, Integer>> getNbClassLevel() {
-		return (HashMap<Classes, HashMap<Integer, Integer>>) nbClassLevel.clone();	// TODO return a deep clone, not a shallow one
+	public HashMap<ClassLevel, Integer> getNbClassLevel() {
+		return (HashMap<ClassLevel, Integer>) nbClassLevel.clone();
 	}
 	
 }

@@ -3,7 +3,9 @@ package me.tyalis.dnd.generator.city.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import me.tyalis.dnd.Classes;
+import me.tyalis.dnd.Alignment;
+import static me.tyalis.dnd.Dices.D20;
+import static me.tyalis.dnd.Dices.D100;
 import me.tyalis.dnd.Race;
 
 /**
@@ -24,15 +26,15 @@ public class StateBuilder {
 	private int nbSoldiers;
 	private int nbMilitia;
 	
-	private ArrayList<Government> government;
+	private ArrayList<Government> governments;
 	
-	private HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel;
+	private HashMap<ClassLevel, Integer> nbClassLevel;
 	
 	
 	public StateBuilder() {
 		this.nbClassLevel = new HashMap<>();
 		this.popPerRace = new HashMap<>();
-		this.government = new ArrayList<>();
+		this.governments = new ArrayList<>();
 	}
 	
 	public StateBuilder(CityClass cityClass, int pop) {
@@ -45,10 +47,8 @@ public class StateBuilder {
 	
 	public CityState get() {
 		HashMap<Race, Integer> popPerRace = (HashMap<Race, Integer>) this.popPerRace.clone();
-		// TODO deep clone government list
-		ArrayList<Government> government = (ArrayList<Government>) this.government.clone();
-		// TODO deep clone class levels map
-		HashMap<Classes, HashMap<Integer, Integer> > nbClassLevel = (HashMap<Classes, HashMap<Integer, Integer> >) this.nbClassLevel.clone();
+		ArrayList<Government> government = (ArrayList<Government>) this.governments.clone();
+		HashMap<ClassLevel, Integer> nbClassLevel = (HashMap<ClassLevel, Integer>) this.nbClassLevel.clone();
 		
 		// TODO validity check
 		
@@ -83,6 +83,74 @@ public class StateBuilder {
 	public StateBuilder recommandedMilitia(){
 		this.nbMilitia = this.nbPop /20;
 		return this;
+	}
+	
+	public StateBuilder addGovernment(Government gov) {
+		this.governments.add(gov);
+		return this;
+	}
+	
+	public StateBuilder addRandomGovernments() {
+		this.addRandomGovernmentsFor(cityClass);
+		return this;
+	}
+	
+	public StateBuilder addRandomGovernmentsFor(CityClass cityClass) {
+		GovernmentType govType;
+		Alignment govAlign;
+		
+		for (int i = 0; i < cityClass.govMultiplier; i++){
+			govType = this.randomGovType(cityClass.govModifier);
+			govAlign = this.randomGovAlignment(cityClass.govModifier);
+			this.addGovernment(new Government(govType, govAlign));
+		}
+		
+		return this;
+	}
+	
+	
+	protected GovernmentType randomGovType(int modif) {
+		int roll = D20.roll() + modif;
+		GovernmentType govType;
+		
+		if (roll <= 13) {
+			govType = (D100.roll() <= 5)
+					? GovernmentType.MONSTROUS
+					: GovernmentType.TRADITIONAL;
+		} else if (roll <= 18) {
+			govType = GovernmentType.INHABITUAL;
+		} else {
+			govType = GovernmentType.MAGICAL;
+		}
+		
+		return govType;
+	}
+	
+	protected Alignment randomGovAlignment(int modif) {
+		int roll = D100.roll() + modif;
+		Alignment govAlign;
+		
+		if (roll <= 35) {
+			govAlign = Alignment.LG;
+		} else if (roll <= 39) {
+			govAlign = Alignment.NG;
+		} else if (roll <= 41) {
+			govAlign = Alignment.CG;
+		} else if (roll <= 61) {
+			govAlign = Alignment.LN;
+		} else if (roll <= 63) {
+			govAlign = Alignment.NN;
+		} else if (roll <= 64) {
+			govAlign = Alignment.CN;
+		} else if (roll <= 90) {
+			govAlign = Alignment.LE;
+		} else if (roll <= 98) {
+			govAlign = Alignment.NE;
+		} else {
+			govAlign = Alignment.CE;
+		}
+		
+		return govAlign;
 	}
 	
 	
