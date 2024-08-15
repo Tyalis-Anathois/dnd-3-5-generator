@@ -6,7 +6,10 @@ import me.tyalis.dnd.generator.city.model.pop.ClassLevel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import me.tyalis.dnd.Alignment;
 import me.tyalis.dnd.Classes;
 import static me.tyalis.dnd.Dices.D20;
@@ -14,6 +17,7 @@ import static me.tyalis.dnd.Dices.D100;
 import me.tyalis.dnd.Race;
 import me.tyalis.dnd.generator.city.model.pop.DicesPerClass;
 import me.tyalis.dnd.DicesQuantity;
+import me.tyalis.dnd.NpcClasses;
 
 /**
  *
@@ -125,29 +129,39 @@ public class StateBuilder {
 	}
 	
 	public StateBuilder addStdPnjQtyByClassLevel() {
-		this.addStdPnjQtyByClassLevelFor(cityClass);
+		this.addStdPnjQtyByClassLevelFor(cityClass, nbPop);
 		return this;
 	}
 	
-	public StateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass) {
+	public StateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass, int nbPop) {
 		Map<Classes, DicesQuantity> dpc = DicesPerClass.getDefaultDicesPerClass();
 		DicesQuantity diceQty;
 		int level;
 		ClassLevel classLvl;
+		int estimNbDerived = 0;
 		
 		for (Classes classe : dpc.keySet()) {
 			for (int i = 0; i < cityClass.communityMultiplier; i++) {
 				diceQty = (DicesQuantity) dpc.get(classe);
 				level = diceQty.roll(cityClass.communityModifier);
-				classLvl = new ClassLevel(classe, level);
 				
-				this.addPnjQtyByClassLevel(classLvl, 1);
-				// TODO track dependent qty
+				if (level > 0) {	// FIXME NpcClasses should be > 1
+					classLvl = new ClassLevel(classe, level);
+					this.addPnjQtyByClassLevel(classLvl, 1);
+					estimNbDerived += this.estimDerived(classe, level);
+				}
 			}
 		}
-		// TODO propagate keeping total pop in mind
+		
+		// Propagate keeping total pop in mind
+		if (nbPop > (this.nbClassLevel.size() + estimNbDerived)) {
+			this.propagateDerivedDefault();
+		} else {
+			this.propagateDerivedNotEnoughPop(nbPop);
+		}
 		
 		// TODO assign rest of population
+		// XXX an accruate countPop is needed, cannot use keyset.size ... + need to return count from propagate methods
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
@@ -194,6 +208,81 @@ public class StateBuilder {
 		}
 		
 		return govAlign;
+	}
+	
+	protected int estimDerived(Classes classe, int level) {	// TODO unit test
+		boolean isNpcClass = classe instanceof NpcClasses;
+		int stopAtLevel = (isNpcClass) ? 2 : 1;
+		int nbAdd = 2;
+		level /= 2;
+		int tot = 0;
+		
+		while(level > stopAtLevel) {
+			tot += nbAdd;
+			level /= 2;
+			nbAdd *= 2;
+		}
+		
+		return tot;
+	}
+	
+	protected void propagateDerivedDefault() {
+		Set<ClassLevel> classLvls = this.nbClassLevel.keySet();
+		
+		for (ClassLevel classLvl : classLvls) {
+			this.propagateDerivedDefaultFor(classLvl.getClasse(), classLvl.getLevel(), this.nbClassLevel.get(classLvl));
+		}
+	}
+	
+	protected void propagateDerivedDefaultFor(Classes classe, int level, int qty) {
+		boolean isNpcClass = classe instanceof NpcClasses;
+		int stopAtLevel = (isNpcClass) ? 2 : 1;
+		ClassLevel classLvl;
+		int nbAdd = qty * 2;
+		level /= 2;
+		
+		while(level > stopAtLevel) {
+			classLvl = new ClassLevel(classe, level);
+			this.addPnjQtyByClassLevel(classLvl, nbAdd);
+			level /= 2;
+			nbAdd *= 2;
+		}
+	}
+	
+	protected void propagateDerivedNotEnoughPop(int nbPop) {
+		Set<ClassLevel> keys = this.nbClassLevel.keySet();
+		int countPop = keys.size();	// at start, only 1 for top of each class, except for big cities in which case this method is not used.
+		Queue<ClassLevel> queue = new ArrayBlockingQueue<>(countPop * 2, false, keys);
+		int jailBreak = nbPop;
+		boolean isNpcClass;
+		int stopAtLevel;
+		ClassLevel classLvl;
+		Classes classe;
+		int level;
+		ClassLevel newClassLvl;
+		int nbAdd;
+		
+		do {
+			classLvl = queue.remove();
+			classe = classLvl.getClasse();
+			level = classLvl.getLevel() / 2;
+			nbAdd = this.nbClassLevel.get(classLvl) * 2;
+			
+			isNpcClass = classe instanceof NpcClasses;
+			stopAtLevel = (isNpcClass) ? 2 : 1;
+			
+			nbAdd = ( (countPop + nbAdd) > nbPop) ? nbPop - countPop : nbAdd;
+			
+			if (level > stopAtLevel) {
+				newClassLvl = new ClassLevel(classe, level);
+				this.addPnjQtyByClassLevel(newClassLvl, nbAdd);
+				queue.add(newClassLvl);
+				countPop += nbAdd;
+			}
+			
+			jailBreak--;
+			
+		} while (nbPop > countPop && jailBreak > 0 && !queue.isEmpty());
 	}
 	
 	
