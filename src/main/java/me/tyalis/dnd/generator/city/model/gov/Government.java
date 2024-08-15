@@ -1,4 +1,4 @@
-package me.tyalis.dnd.generator.city.model;
+package me.tyalis.dnd.generator.city.model.gov;
 
 import java.io.Serializable;
 import java.util.Objects;

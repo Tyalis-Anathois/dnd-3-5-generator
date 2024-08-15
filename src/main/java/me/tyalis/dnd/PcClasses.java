@@ -4,7 +4,7 @@ package me.tyalis.dnd;
  *
  * @author Tyalis
  */
-public enum PcClasses {
+public enum PcClasses implements Classes {
 	BARBARIAN,
 	BARD,
 	CLERIC,

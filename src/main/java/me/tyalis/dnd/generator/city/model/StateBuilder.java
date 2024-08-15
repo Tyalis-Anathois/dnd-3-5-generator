@@ -1,12 +1,19 @@
 package me.tyalis.dnd.generator.city.model;
 
+import me.tyalis.dnd.generator.city.model.gov.GovernmentType;
+import me.tyalis.dnd.generator.city.model.gov.Government;
+import me.tyalis.dnd.generator.city.model.pop.ClassLevel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import me.tyalis.dnd.Alignment;
+import me.tyalis.dnd.Classes;
 import static me.tyalis.dnd.Dices.D20;
 import static me.tyalis.dnd.Dices.D100;
 import me.tyalis.dnd.Race;
+import me.tyalis.dnd.generator.city.model.pop.DicesPerClass;
+import me.tyalis.dnd.DicesQuantity;
 
 /**
  *
@@ -47,13 +54,13 @@ public class StateBuilder {
 	
 	public CityState get() {
 		HashMap<Race, Integer> popPerRace = (HashMap<Race, Integer>) this.popPerRace.clone();
-		ArrayList<Government> government = (ArrayList<Government>) this.governments.clone();
+		ArrayList<Government> governments = (ArrayList<Government>) this.governments.clone();
 		HashMap<ClassLevel, Integer> nbClassLevel = (HashMap<ClassLevel, Integer>) this.nbClassLevel.clone();
 		
 		// TODO validity check
 		
 		return new CityState(cityClass, nbPop, financeLimit, liquidity, nbChildren, popPerRace, nbSoldiers, nbMilitia,
-				government, nbClassLevel);
+				governments, nbClassLevel);
 	}
 	
 	
@@ -106,6 +113,42 @@ public class StateBuilder {
 		}
 		
 		return this;
+	}
+	
+	public StateBuilder addPnjQtyByClassLevel(ClassLevel cl, int qty) {
+		if (this.nbClassLevel.containsKey(cl)) {
+			qty += this.nbClassLevel.get(cl);
+		}
+		
+		this.nbClassLevel.put(cl, qty);
+		return this;
+	}
+	
+	public StateBuilder addStdPnjQtyByClassLevel() {
+		this.addStdPnjQtyByClassLevelFor(cityClass);
+		return this;
+	}
+	
+	public StateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass) {
+		Map<Classes, DicesQuantity> dpc = DicesPerClass.getDefaultDicesPerClass();
+		DicesQuantity diceQty;
+		int level;
+		ClassLevel classLvl;
+		
+		for (Classes classe : dpc.keySet()) {
+			for (int i = 0; i < cityClass.communityMultiplier; i++) {
+				diceQty = (DicesQuantity) dpc.get(classe);
+				level = diceQty.roll(cityClass.communityModifier);
+				classLvl = new ClassLevel(classe, level);
+				
+				this.addPnjQtyByClassLevel(classLvl, 1);
+				// TODO track dependent qty
+			}
+		}
+		// TODO propagate keeping total pop in mind
+		
+		// TODO assign rest of population
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
 	

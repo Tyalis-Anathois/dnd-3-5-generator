@@ -1,5 +1,7 @@
 package me.tyalis.dnd.generator.city.model;
 
+import me.tyalis.dnd.generator.city.model.gov.Government;
+import me.tyalis.dnd.generator.city.model.pop.ClassLevel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
