@@ -195,8 +195,10 @@ public class StateBuilder {
 	
 	protected int generateMaxLevelClassAndEstimateDerived () {
 		Map<Classes, DicesQuantity> dpc = DicesPerClass.getDefaultDicesPerClass();
+		boolean isNpcClass;
 		DicesQuantity diceQty;
 		int level;
+		int stopBeforeLevel;
 		ClassLevel classLvl;
 		int estimNbDerived = 0;
 		
@@ -204,8 +206,10 @@ public class StateBuilder {
 			for (int i = 0; i < cityClass.communityMultiplier; i++) {
 				diceQty = (DicesQuantity) dpc.get(classe);
 				level = diceQty.roll(cityClass.communityModifier);
+				isNpcClass = this.isNpcClass(classe);
+				stopBeforeLevel = (isNpcClass) ? 1 : 0;
 				
-				if (level > 0) {	// FIXME NpcClasses should be > 1
+				if (level > stopBeforeLevel) {
 					classLvl = new ClassLevel(classe, level);
 					this.addPnjQtyByClassLevel(classLvl, 1);
 					estimNbDerived += this.estimDerived(classe, level);
@@ -217,7 +221,7 @@ public class StateBuilder {
 	}
 	
 	protected int estimDerived(Classes classe, int level) {	// TODO unit test
-		boolean isNpcClass = classe instanceof NpcClasses;
+		boolean isNpcClass = this.isNpcClass(classe);
 		int stopAtLevel = (isNpcClass) ? 2 : 1;
 		int nbAdd = 2;
 		level /= 2;
@@ -241,7 +245,7 @@ public class StateBuilder {
 	}
 	
 	protected void propagateDerivedDefaultFor(Classes classe, int level, int qty) {
-		boolean isNpcClass = classe instanceof NpcClasses;
+		boolean isNpcClass = this.isNpcClass(classe);
 		int stopAtLevel = (isNpcClass) ? 2 : 1;
 		ClassLevel classLvl;
 		int nbAdd = qty * 2;
@@ -274,7 +278,7 @@ public class StateBuilder {
 			level = classLvl.getLevel() / 2;
 			nbAdd = this.nbClassLevel.get(classLvl) * 2;
 			
-			isNpcClass = classe instanceof NpcClasses;
+			isNpcClass = this.isNpcClass(classe);
 			stopAtLevel = (isNpcClass) ? 2 : 1;
 			
 			nbAdd = ( (countPop + nbAdd) > nbPop) ? nbPop - countPop : nbAdd;
@@ -299,6 +303,10 @@ public class StateBuilder {
 		}
 		
 		return popTot;
+	}
+	
+	protected boolean isNpcClass(Classes classe) {
+		return classe instanceof NpcClasses;
 	}
 	
 	
