@@ -134,27 +134,10 @@ public class StateBuilder {
 	}
 	
 	public StateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass, int nbPop) {
-		Map<Classes, DicesQuantity> dpc = DicesPerClass.getDefaultDicesPerClass();
-		DicesQuantity diceQty;
-		int level;
-		ClassLevel classLvl;
-		int estimNbDerived = 0;
-		
-		for (Classes classe : dpc.keySet()) {
-			for (int i = 0; i < cityClass.communityMultiplier; i++) {
-				diceQty = (DicesQuantity) dpc.get(classe);
-				level = diceQty.roll(cityClass.communityModifier);
-				
-				if (level > 0) {	// FIXME NpcClasses should be > 1
-					classLvl = new ClassLevel(classe, level);
-					this.addPnjQtyByClassLevel(classLvl, 1);
-					estimNbDerived += this.estimDerived(classe, level);
-				}
-			}
-		}
+		int estimNbDerived = this.generateMaxLevelClassAndEstimateDerived();
 		
 		// Propagate keeping total pop in mind
-		if (nbPop > (this.nbClassLevel.size() + estimNbDerived)) {
+		if (nbPop > (this.getCurrentAssignedPopCount() + estimNbDerived) ) {
 			this.propagateDerivedDefault();
 		} else {
 			this.propagateDerivedNotEnoughPop(nbPop);
@@ -208,6 +191,29 @@ public class StateBuilder {
 		}
 		
 		return govAlign;
+	}
+	
+	protected int generateMaxLevelClassAndEstimateDerived () {
+		Map<Classes, DicesQuantity> dpc = DicesPerClass.getDefaultDicesPerClass();
+		DicesQuantity diceQty;
+		int level;
+		ClassLevel classLvl;
+		int estimNbDerived = 0;
+		
+		for (Classes classe : dpc.keySet()) {
+			for (int i = 0; i < cityClass.communityMultiplier; i++) {
+				diceQty = (DicesQuantity) dpc.get(classe);
+				level = diceQty.roll(cityClass.communityModifier);
+				
+				if (level > 0) {	// FIXME NpcClasses should be > 1
+					classLvl = new ClassLevel(classe, level);
+					this.addPnjQtyByClassLevel(classLvl, 1);
+					estimNbDerived += this.estimDerived(classe, level);
+				}
+			}
+		}
+		
+		return estimNbDerived;
 	}
 	
 	protected int estimDerived(Classes classe, int level) {	// TODO unit test
@@ -283,6 +289,16 @@ public class StateBuilder {
 			jailBreak--;
 			
 		} while (nbPop > countPop && jailBreak > 0 && !queue.isEmpty());
+	}
+	
+	protected int getCurrentAssignedPopCount() {
+		int popTot = 0;
+		
+		for (ClassLevel classLvl : this.nbClassLevel.keySet()) {
+			popTot += this.nbClassLevel.get(classLvl);
+		}
+		
+		return popTot;
 	}
 	
 	
