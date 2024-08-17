@@ -21,6 +21,7 @@ import me.tyalis.dnd.Race;
 import me.tyalis.dnd.generator.city.model.pop.DicesPerClass;
 import me.tyalis.dnd.DicesQuantity;
 import me.tyalis.dnd.NpcClasses;
+import me.tyalis.dnd.PcClasses;
 
 /**
  *
@@ -43,6 +44,7 @@ public class StateBuilder {
 	private ArrayList<Government> governments;
 	
 	private HashMap<ClassLevel, Integer> nbClassLevel;
+	private ClassLevel captain;
 	
 	
 	public StateBuilder() {
@@ -67,7 +69,7 @@ public class StateBuilder {
 		// TODO validity check
 		
 		return new CityState(cityClass, nbPop, financeLimit, liquidity, nbChildren, popPerRace, nbSoldiers, nbMilitia,
-				governments, nbClassLevel);
+				governments, nbClassLevel, captain);
 	}
 	
 	
@@ -149,6 +151,27 @@ public class StateBuilder {
 		// Assign rest of population
 		int restToAssign = nbPop - this.getCurrentAssignedPopCount();
 		this.distributeUnassignedToNpcClassByPercent(restToAssign);
+		
+		return this;
+	}
+	
+	public StateBuilder pickCaptainByStdRoll() {
+		int roll = D100.roll();
+		
+		boolean hasWarrior = this.populationHasClass(NpcClasses.WARRIOR);
+		boolean hasFighter = this.populationHasClass(PcClasses.FIGHTER);
+		
+		if (hasWarrior && !hasFighter) {
+			this.captain = this.getClassLevelByRank(NpcClasses.WARRIOR, 1);
+		} else if (hasFighter) {
+			while (!hasWarrior && roll < 61) {
+				roll = D100.roll();
+			}
+			
+			this.captain = roll < 61 ? this.getClassLevelByRank(NpcClasses.WARRIOR, 1)
+					: roll < 81 ? this.getClassLevelByRank(PcClasses.FIGHTER, 2)
+					: this.getClassLevelByRank(PcClasses.FIGHTER, 1);
+		}
 		
 		return this;
 	}
@@ -359,6 +382,31 @@ public class StateBuilder {
 		return classe instanceof NpcClasses;
 	}
 	
+	protected boolean populationHasClass(Classes classe) {
+		return this.hasClass(nbClassLevel, classe);
+	}
+	
+	protected boolean hasClass(HashMap<ClassLevel, Integer> assignedPop, Classes classe) {
+		long count = assignedPop.keySet().stream()
+				.filter(classLvl -> classLvl.getClasse().equals(classe))
+				.count();
+		
+		return count > 0;
+	}
+	
+	protected ClassLevel getClassLevelByRank(Classes classe, int rank) {
+		return this.getClassLevelByRank(nbClassLevel, classe, rank);
+	}
+	
+	protected ClassLevel getClassLevelByRank(HashMap<ClassLevel, Integer> assignedPop, Classes classe, int rank) {
+		List<ClassLevel> classLvlsDesc = assignedPop.keySet().stream()
+				.filter(classLvl -> classLvl.getClasse().equals(classe))
+				.sorted((o1, o2) -> o1.getLevel() - o2.getLevel())
+				.collect(Collectors.toList());
+		
+		return classLvlsDesc.get(rank -1 );
+	}
+	
 	
 	public CityClass getCityClass() {
 		return cityClass;
@@ -407,6 +455,13 @@ public class StateBuilder {
 	}
 	public void setNbMilitia(int nbMilitia) {
 		this.nbMilitia = nbMilitia;
+	}
+	
+	public ClassLevel getCaptain() {
+		return captain;
+	}
+	public void setCaptain(ClassLevel captain) {
+		this.captain = captain;
 	}
 	
 }

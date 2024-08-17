@@ -90,7 +90,7 @@ public class DefaultCityFactory implements CityFactory {
 				.recommandedMilitia()
 				.addRandomGovernments()
 				.addStdPnjQtyByClassLevel()
-				// TODO pick capitain
+				.pickCaptainByStdRoll()
 				// TODO generate races
 				;
 		

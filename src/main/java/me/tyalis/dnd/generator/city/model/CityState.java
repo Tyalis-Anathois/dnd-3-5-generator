@@ -15,26 +15,28 @@ public class CityState implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private CityClass cityClass;
 	
-	private int nbPop;
-	private int financeLimit;
-	private int liquidity;
+	private final CityClass cityClass;
 	
-	private int nbChildren;	// TODO children and teens between 10% to 40%
-	private HashMap<Race, Integer> popPerRace;
+	private final int nbPop;
+	private final int financeLimit;
+	private final int liquidity;
 	
-	private int nbSoldiers;
-	private int nbMilitia;
+	private final int nbChildren;	// TODO children and teens between 10% to 40%
+	private final HashMap<Race, Integer> popPerRace;
 	
-	private ArrayList<Government> government;
+	private final int nbSoldiers;
+	private final int nbMilitia;
 	
-	private HashMap<ClassLevel, Integer> nbClassLevel;
+	private final ArrayList<Government> government;
+	
+	private final HashMap<ClassLevel, Integer> nbClassLevel;
+	private ClassLevel captain;
 	
 	
 	CityState(CityClass cityClass, int nbPop, int financeLimit, int liquidity, int nbChildren,
 			HashMap<Race, Integer> popPerRace, int nbSoldiers, int nbMilitia, ArrayList<Government> government,
-			HashMap<ClassLevel, Integer> nbClassLevel) {
+			HashMap<ClassLevel, Integer> nbClassLevel, ClassLevel captain) {
 		
 		this.cityClass = cityClass;
 		this.nbPop = nbPop;
@@ -46,6 +48,7 @@ public class CityState implements Serializable {
 		this.nbMilitia = nbMilitia;
 		this.government = government;
 		this.nbClassLevel = nbClassLevel;
+		this.captain = captain;
 	}
 	
 	
@@ -87,6 +90,10 @@ public class CityState implements Serializable {
 	
 	public HashMap<ClassLevel, Integer> getNbClassLevel() {
 		return (HashMap<ClassLevel, Integer>) nbClassLevel.clone();
+	}
+	
+	public ClassLevel getCaptain() {
+		return captain;
 	}
 	
 }
