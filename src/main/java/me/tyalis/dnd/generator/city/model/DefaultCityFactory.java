@@ -89,8 +89,9 @@ public class DefaultCityFactory implements CityFactory {
 				.recommandedGuards()
 				.recommandedMilitia()
 				.addRandomGovernments()
-				// TODO generate classes pop
+				.addStdPnjQtyByClassLevel()
 				// TODO pick capitain
+				// TODO generate races
 				;
 		
 		throw new UnsupportedOperationException("Not supported yet.");

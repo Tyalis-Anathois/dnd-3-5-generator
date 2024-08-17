@@ -5,11 +5,14 @@ import me.tyalis.dnd.generator.city.model.gov.Government;
 import me.tyalis.dnd.generator.city.model.pop.ClassLevel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 import me.tyalis.dnd.Alignment;
 import me.tyalis.dnd.Classes;
 import static me.tyalis.dnd.Dices.D20;
@@ -143,9 +146,11 @@ public class StateBuilder {
 			this.propagateDerivedNotEnoughPop(nbPop);
 		}
 		
-		// TODO assign rest of population
-		// XXX an accruate countPop is needed, cannot use keyset.size ... + need to return count from propagate methods
-		throw new UnsupportedOperationException("Not implemented yet");
+		// Assign rest of population
+		int restToAssign = nbPop - this.getCurrentAssignedPopCount();
+		this.distributeUnassignedToNpcClassByPercent(restToAssign);
+		
+		return this;
 	}
 	
 	
@@ -295,11 +300,56 @@ public class StateBuilder {
 		} while (nbPop > countPop && jailBreak > 0 && !queue.isEmpty());
 	}
 	
+	protected void distributeUnassignedToNpcClassByPercent(int toAssign) {
+		// Calculate raw floating values
+		HashMap<ClassLevel, Double> ratioPerClass = new HashMap<>();
+		ratioPerClass.put(new ClassLevel(NpcClasses.COMMONER, 1), toAssign * 0.91);
+		ratioPerClass.put(new ClassLevel(NpcClasses.WARRIOR, 1), toAssign * 0.05);
+		ratioPerClass.put(new ClassLevel(NpcClasses.EXPERT, 1), toAssign * 0.03);
+		ratioPerClass.put(new ClassLevel(NpcClasses.ADEPT, 1), toAssign * 0.005);
+		ratioPerClass.put(new ClassLevel(NpcClasses.ARISTOCRAT, 1), toAssign * 0.005);
+		
+		// Floor them and (by) convert into integer
+		HashMap<ClassLevel, Integer> numberPerClassLevel = new HashMap<>();
+		for (ClassLevel classLvl : ratioPerClass.keySet()) {
+			numberPerClassLevel.put(classLvl, (int) ratioPerClass.get(classLvl).doubleValue());
+		}
+		
+		int roundError = toAssign - this.getAssignedPopCountFor(numberPerClassLevel);
+		
+		if (roundError < 0) {
+			// Should not happen : rounding with int cast should always lower the round value, not augment it,
+			// so we should never be over the total number to add
+			throw new StateBuildingException("Impossible rounding during assignation by percentage of population to NPC classes");
+			
+		} else if (roundError > 0) {
+			// If there is round error, we have the exact number, so we can correct by adding 1 by order of highest decimals until fixed
+			HashMap<ClassLevel, Double> restPerClass = (HashMap<ClassLevel, Double>) ratioPerClass.clone();
+			restPerClass.entrySet().stream().forEach(entry -> entry.setValue(entry.getValue() % 1) );
+			List<Entry<ClassLevel, Double> > entries = restPerClass.entrySet().stream()
+					.sorted((o1, o2) -> (o1.equals(o2) ? 0 : o1.getValue() > o2.getValue() ? 1 : 0) )
+					.collect(Collectors.toList());
+			
+			Entry entry;
+			for (int i = 0; i < roundError; i++) {
+				entry = entries.get(i);
+				numberPerClassLevel.put( (ClassLevel) entry.getKey(), 
+						1 + (int) ((Double) entry.getValue()).doubleValue() );
+			}
+		}
+		
+		this.nbClassLevel.putAll(numberPerClassLevel);
+	}
+	
 	protected int getCurrentAssignedPopCount() {
+		return this.getAssignedPopCountFor(this.nbClassLevel);
+	}
+	
+	protected int getAssignedPopCountFor(HashMap<ClassLevel, Integer> nbByClassLevel) {
 		int popTot = 0;
 		
-		for (ClassLevel classLvl : this.nbClassLevel.keySet()) {
-			popTot += this.nbClassLevel.get(classLvl);
+		for (ClassLevel classLvl : nbByClassLevel.keySet()) {
+			popTot += nbByClassLevel.get(classLvl);
 		}
 		
 		return popTot;
