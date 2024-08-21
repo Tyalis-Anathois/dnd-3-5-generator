@@ -6,7 +6,7 @@ import java.util.Random;
  *
  * @author Tyalis
  */
-public enum Dices {
+public enum Dices implements Rollable {
 	D3(3),
 	D4(4),
 	D6(6),

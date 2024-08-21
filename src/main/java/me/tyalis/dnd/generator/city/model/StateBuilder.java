@@ -350,7 +350,7 @@ public class StateBuilder {
 			HashMap<ClassLevel, Double> restPerClass = (HashMap<ClassLevel, Double>) ratioPerClass.clone();
 			restPerClass.entrySet().stream().forEach(entry -> entry.setValue(entry.getValue() % 1) );
 			List<Entry<ClassLevel, Double> > entries = restPerClass.entrySet().stream()
-					.sorted((o1, o2) -> (o1.equals(o2) ? 0 : o1.getValue() > o2.getValue() ? 1 : 0) )
+					.sorted((o1, o2) -> (o1.getValue().equals(o2.getValue()) ? 0 : o1.getValue() > o2.getValue() ? 1 : 0) )
 					.collect(Collectors.toList());
 			
 			Entry entry;

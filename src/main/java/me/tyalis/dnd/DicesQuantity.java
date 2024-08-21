@@ -2,13 +2,12 @@ package me.tyalis.dnd;
 
 import java.util.HashMap;
 import java.util.Map;
-import me.tyalis.dnd.Dices;
 
 /**
  *
  * @author Tyalis
  */
-public class DicesQuantity {
+public class DicesQuantity implements Rollable {
 	
 	private Map<Dices, Integer> diceQuantity;
 	
