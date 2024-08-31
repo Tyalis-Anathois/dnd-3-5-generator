@@ -22,7 +22,7 @@ public class CityState implements Serializable {
 	private final int financeLimit;
 	private final int liquidity;
 	
-	private final int nbChildren;	// TODO children and teens between 10% to 40%
+	private final int nbChildren;
 	private final HashMap<Race, Integer> popPerRace;
 	
 	private final int nbSoldiers;
@@ -31,7 +31,7 @@ public class CityState implements Serializable {
 	private final ArrayList<Government> government;
 	
 	private final HashMap<ClassLevel, Integer> nbClassLevel;
-	private ClassLevel captain;
+	private final ClassLevel captain;
 	
 	
 	CityState(CityClass cityClass, int nbPop, int financeLimit, int liquidity, int nbChildren,

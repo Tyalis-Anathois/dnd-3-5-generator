@@ -39,7 +39,7 @@ public class StateBuilder {
 	private int financeLimit;
 	private int liquidity;
 	
-	private int nbChildren;	// TODO children and teens between 10% to 40%
+	private int nbChildren;
 	private HashMap<Race, Integer> popPerRace;
 	
 	private int nbSoldiers;
@@ -62,6 +62,20 @@ public class StateBuilder {
 		this.nbPop = pop;
 		this.cityClass = cityClass;
 		this.financeLimit = this.cityClass.financeLimit;
+	}
+	
+	public StateBuilder(CityState state) {
+		this.nbPop =		state.getNbPop();
+		this.cityClass =	state.getCityClass();
+		this.financeLimit =	state.getFinanceLimit();
+		this.liquidity =	state.getLiquidity();
+		this.nbChildren =	state.getNbChildren();
+		this.nbSoldiers =	state.getNbSoldiers();
+		this.nbMilitia =	state.getNbMilitia();
+		this.governments =	state.getGovernment();
+		this.nbClassLevel =	state.getNbClassLevel();
+		this.captain =		state.getCaptain();
+		this.popPerRace =	state.getPopPerRace();
 	}
 	
 	

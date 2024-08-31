@@ -94,7 +94,7 @@ public class DefaultCityFactory implements CityFactory {
 				.distributeRaceAubInland()
 				;
 		
-		throw new UnsupportedOperationException("Not supported yet.");
+		return new City(stateBuilder.get());
 	}
 	
 }
