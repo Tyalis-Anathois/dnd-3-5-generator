@@ -91,7 +91,7 @@ public class DefaultCityFactory implements CityFactory {
 				.addRandomGovernments()
 				.addStdPnjQtyByClassLevel()
 				.pickCaptainByStdRoll()
-				// TODO generate races
+				.distributeRaceAubInland()
 				;
 		
 		throw new UnsupportedOperationException("Not supported yet.");

@@ -4,7 +4,7 @@ package me.tyalis.dnd;
  *
  * @author Tyalis
  */
-public enum PlayableRace {
+public enum PlayableRace implements Race {
 	HUMAN,
 	ELF,
 	DWARF,

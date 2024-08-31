@@ -22,6 +22,10 @@ import me.tyalis.dnd.generator.city.model.pop.DicesPerClass;
 import me.tyalis.dnd.DicesQuantity;
 import me.tyalis.dnd.NpcClasses;
 import me.tyalis.dnd.PcClasses;
+import me.tyalis.dnd.generator.city.model.pop.RaceDistributionFactory;
+import me.tyalis.dnd.generator.city.model.pop.RaceDistributionType;
+import me.tyalis.dnd.generator.city.model.pop.RacePrevalenceOrder;
+import me.tyalis.dnd.tables.PercentTable;
 
 /**
  *
@@ -175,6 +179,29 @@ public class StateBuilder {
 		
 		return this;
 	}
+	
+	public StateBuilder distributeRaces() {
+		PercentTable<Race>.IntegerResult<Race> distrib = new RaceDistributionFactory().getRaceDistributionStrict(
+				RaceDistributionType.MIXED, 
+				RacePrevalenceOrder.STD, 
+				nbPop);
+		
+		this.setDistributeRaces(distrib);
+		
+		return this;
+	}
+	
+	public StateBuilder distributeRaceAubInland() {
+		PercentTable<Race>.IntegerResult<Race> distrib = new RaceDistributionFactory().getRaceDistributionStrict(
+				RaceDistributionType.MIXED, 
+				RacePrevalenceOrder.AUBERVIVE_INLAND, 
+				nbPop);
+		
+		this.setDistributeRaces(distrib);
+		
+		return this;
+	}
+	
 	
 	
 	protected GovernmentType randomGovType(int modif) {
@@ -405,6 +432,11 @@ public class StateBuilder {
 				.collect(Collectors.toList());
 		
 		return classLvlsDesc.get(rank -1 );
+	}
+	
+	protected void setDistributeRaces(PercentTable<Race>.IntegerResult<Race> distrib) {
+		distrib.getValues().stream()
+				.forEach(race -> this.popPerRace.put(race, distrib.getResultFor(race)));
 	}
 	
 	

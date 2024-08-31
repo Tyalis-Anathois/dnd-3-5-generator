@@ -49,10 +49,25 @@ public class PercentTable<V> {
 	 * @param percent - The percent value, exprimed as a decimal number comprised between 0.0 and 100.0.
 	 * @throws IllegalArgumentException - when the percentage is not comprised between 0.0 and 100.0.
 	 */
+	public void set(V v, double percent) {
+		this.validateValue(v);
+		this.validatePercent(percent);
+		
+		this.table.put(v, percent);
+	}
+	
+	/**
+	 * @param v - The given value.
+	 * @param percent - The percent value, exprimed as a decimal number comprised between 0.0 and 100.0.
+	 * @throws IllegalArgumentException - when the sum of the current percentage and given percentage is not comprised between 0.0 and 100.0.
+	 */
+	@SuppressWarnings("null")
 	public void add(V v, double percent) {
-		if (percent < 0d || percent > 0d) {
-			throw new IllegalArgumentException("The percent value must be comprised between 0.0 and 100.0 as any percentage.");
-		}
+		this.validateValue(v);
+		
+		percent += (this.table.containsKey(v)) ? this.table.get(v) : 0d;
+		
+		this.validatePercent(percent);
 		
 		this.table.put(v, percent);
 	}
@@ -75,6 +90,11 @@ public class PercentTable<V> {
 	
 	public boolean isValid() {
 		return this.totalAllocated() == 100d;
+	}
+	
+	public boolean isValidPercent(double percent) {
+		boolean invalid = percent < 0d || percent > 100d;
+		return ! invalid;
 	}
 	
 	
@@ -131,6 +151,10 @@ public class PercentTable<V> {
 			return this.results.get(v);
 		}
 		
+		public Set<V> getValues() {
+			return new HashSet<>(this.results.keySet());
+		}
+		
 		
 		private void putResult(V v, int result) {
 			this.results.put(v, result);
@@ -184,5 +208,17 @@ public class PercentTable<V> {
 			;
 		
 		return orderedEntries;
+	}
+	
+	private void validatePercent(double percent) {
+		if (! this.isValidPercent(percent)) {
+			throw new IllegalArgumentException("The percent value must be comprised between 0.0 and 100.0 as any percentage");
+		}
+	}
+	
+	private void validateValue(V v) {
+		if (v == null) {
+			throw new IllegalArgumentException("The given value should always be specified, but null was given");
+		}
 	}
 }
