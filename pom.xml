@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <exec.mainClass>me.tyalis.dnd.generator.Dnd35Generator</exec.mainClass>
+        <exec.mainClass>me.tyalis.dnd.view.generator.Dnd35Generator</exec.mainClass>
     </properties>
     <build>
         <plugins>
@@ -21,7 +21,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>me.tyalis.dnd.generator.Dnd35Generator</mainClass>
+                            <mainClass>me.tyalis.dnd.view.generator.Dnd35Generator</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
