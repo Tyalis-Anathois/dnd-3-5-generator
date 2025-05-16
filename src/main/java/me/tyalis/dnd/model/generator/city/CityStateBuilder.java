@@ -31,7 +31,7 @@ import me.tyalis.dnd.model.tables.PercentTable;
  *
  * @author Tyalis
  */
-public class StateBuilder {
+public class CityStateBuilder {
 	
 	private CityClass cityClass;
 	
@@ -51,20 +51,20 @@ public class StateBuilder {
 	private ClassLevel captain;
 	
 	
-	public StateBuilder() {
+	public CityStateBuilder() {
 		this.nbClassLevel = new HashMap<>();
 		this.popPerRace = new HashMap<>();
 		this.governments = new ArrayList<>();
 	}
 	
-	public StateBuilder(CityClass cityClass, int pop) {
+	public CityStateBuilder(CityClass cityClass, int pop) {
 		this();
 		this.nbPop = pop;
 		this.cityClass = cityClass;
 		this.financeLimit = this.cityClass.financeLimit;
 	}
 	
-	public StateBuilder(CityState state) {
+	public CityStateBuilder(CityState state) {
 		this.nbPop =		state.getNbPop();
 		this.cityClass =	state.getCityClass();
 		this.financeLimit =	state.getFinanceLimit();
@@ -79,7 +79,7 @@ public class StateBuilder {
 	}
 	
 	
-	public CityState get() {
+	public CityState build() {
 		HashMap<Race, Integer> popPerRace = (HashMap<Race, Integer>) this.popPerRace.clone();
 		ArrayList<Government> governments = (ArrayList<Government>) this.governments.clone();
 		HashMap<ClassLevel, Integer> nbClassLevel = (HashMap<ClassLevel, Integer>) this.nbClassLevel.clone();
@@ -91,7 +91,7 @@ public class StateBuilder {
 	}
 	
 	
-	public StateBuilder inferChildPop() {
+	public CityStateBuilder inferChildPop() {
 		int percent = 10 + new Random().nextInt(31);
 		
 		this.inferChildPop(percent);
@@ -99,37 +99,37 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder inferChildPop(int percent) {	// XXX write unit tests
+	public CityStateBuilder inferChildPop(int percent) {	// XXX write unit tests
 		this.nbChildren = (this.nbPop * percent) / 100;
 		return this;
 	}
 	
-	public StateBuilder recommandedLiquidity() {
+	public CityStateBuilder recommandedLiquidity() {
 		this.liquidity = this.nbPop * this.financeLimit /2 /10;
 		return this;
 	}
 	
-	public StateBuilder recommandedGuards() {
+	public CityStateBuilder recommandedGuards() {
 		this.nbSoldiers = this.nbPop / 100;
 		return this;
 	}
 	
-	public StateBuilder recommandedMilitia(){
+	public CityStateBuilder recommandedMilitia(){
 		this.nbMilitia = this.nbPop /20;
 		return this;
 	}
 	
-	public StateBuilder addGovernment(Government gov) {
+	public CityStateBuilder addGovernment(Government gov) {
 		this.governments.add(gov);
 		return this;
 	}
 	
-	public StateBuilder addRandomGovernments() {
+	public CityStateBuilder addRandomGovernments() {
 		this.addRandomGovernmentsFor(cityClass);
 		return this;
 	}
 	
-	public StateBuilder addRandomGovernmentsFor(CityClass cityClass) {
+	public CityStateBuilder addRandomGovernmentsFor(CityClass cityClass) {
 		GovernmentType govType;
 		Alignment govAlign;
 		
@@ -142,7 +142,7 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder addPnjQtyByClassLevel(ClassLevel cl, int qty) {
+	public CityStateBuilder addPnjQtyByClassLevel(ClassLevel cl, int qty) {
 		if (this.nbClassLevel.containsKey(cl)) {
 			qty += this.nbClassLevel.get(cl);
 		}
@@ -151,12 +151,12 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder addStdPnjQtyByClassLevel() {
+	public CityStateBuilder addStdPnjQtyByClassLevel() {
 		this.addStdPnjQtyByClassLevelFor(cityClass, nbPop);
 		return this;
 	}
 	
-	public StateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass, int nbPop) {
+	public CityStateBuilder addStdPnjQtyByClassLevelFor(CityClass cityClass, int nbPop) {
 		int estimNbDerived = this.generateMaxLevelClassAndEstimateDerived();
 		
 		// Propagate keeping total pop in mind
@@ -173,7 +173,7 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder pickCaptainByStdRoll() {
+	public CityStateBuilder pickCaptainByStdRoll() {
 		int roll = D100.roll();
 		
 		boolean hasWarrior = this.populationHasClass(NpcClasses.WARRIOR);
@@ -194,7 +194,7 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder distributeRaces() {
+	public CityStateBuilder distributeRaces() {
 		PercentTable<Race>.IntegerResult<Race> distrib = new RaceDistributionFactory().getRaceDistributionStrict(
 				RaceDistributionType.MIXED, 
 				RacePrevalenceOrder.STD, 
@@ -205,7 +205,7 @@ public class StateBuilder {
 		return this;
 	}
 	
-	public StateBuilder distributeRaceAubInland() {
+	public CityStateBuilder distributeRaceAubInland() {
 		PercentTable<Race>.IntegerResult<Race> distrib = new RaceDistributionFactory().getRaceDistributionStrict(
 				RaceDistributionType.MIXED, 
 				RacePrevalenceOrder.AUBERVIVE_INLAND, 

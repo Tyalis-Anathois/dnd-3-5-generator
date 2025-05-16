@@ -83,7 +83,7 @@ public class DefaultCityFactory implements CityFactory {
 	}
 	
 	protected CityModel createCity(CityClass cityClass, int nbPop) {
-		StateBuilder stateBuilder = new StateBuilder(cityClass, nbPop)
+		CityStateBuilder stateBuilder = new CityStateBuilder(cityClass, nbPop)
 				.inferChildPop()
 				.recommandedLiquidity()
 				.recommandedGuards()
@@ -94,7 +94,7 @@ public class DefaultCityFactory implements CityFactory {
 				.distributeRaceAubInland()
 				;
 		
-		return new City(stateBuilder.get());
+		return new City(stateBuilder.build());
 	}
 	
 }

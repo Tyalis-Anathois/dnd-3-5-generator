@@ -16,7 +16,7 @@ public class City implements CityModel {
 	
 	
 	public City() {
-		this(new StateBuilder().get());
+		this(new CityStateBuilder().build());
 	}
 	
 	public City(CityState state) {
